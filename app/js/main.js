@@ -3,13 +3,6 @@ import json from '../config.json' assert {type: 'json'};
 $(function () {
 
     $('.top__right-img').css('background-image', 'url(' + json['photo'] + ')');
-    $('.main__panel-item-range').spinner({
-        spin: (e, ui) => {
-            if (ui.value == -1) {
-                $(this).spinner('value', 0);
-            }
-        }
-    });
 
     class Circle {
         constructor(number, x, y) {
@@ -38,6 +31,22 @@ $(function () {
         }
     }
 
+    function changeSpinner() {
+        addSpinner((Object.keys(listItems).length) + 1);
+        listItems[(Object.keys(listItems).length) + 1] = 0;
+    }
+
+    function addSpinner(number) {
+        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + number.toString() + ': </p><input class="main__panel-item-range"></div>');
+        $('.main__panel-item-range').spinner({
+            min: 0,
+            max: 100,
+            spin: (e, ui) => {
+                $(this).change(changeSpinner());
+            }
+        });
+    }
+
     function giveCoordX(parentX, childsNumber, ind) {
         let arr = []
         for (let index = 0; index < childsNumber; index++) {
@@ -56,39 +65,23 @@ $(function () {
         return arr[ind]
     }
 
-    //////////////////////////////////////////////////////////////////////
+    let listItems = {
+        1: 0
+    }
 
     const graph = $('.main__graph')[0];
     graph.width = 1200;
     graph.height = 650;
-    
     const cGraph = graph.getContext('2d');
 
+    // GRAPH START //
+
     let vertexesChilds = {
-        1: [2, 3, 4], // у 2, 3, 4 - 2 уровень
-        2: [5], // у 5 - 3 уровень
-        3: [6] // у 6 - 3 уровень
+        1: [2, 3, 4, 5, 6], // у 2, 3, 4 - 2 (1) уровень
+        2: [7, 8, 9], // у 7,8,9 - 3 (2) уровень
+        3: [10], // у 10 - 3 (2) уровень
+        5: [11, 12, 13] // у 11,12,13 - 3 (2) уровень
     }
-
-    let vertexesLevel = {
-        1: 1
-    }
-
-    for (const key in vertexesChilds) {
-        vertexesChilds[key].forEach((value, index) => {
-            if (key == 1) {
-                if (typeof vertexesLevel[2] == 'object') {
-                    vertexesLevel[2].push(value)
-                } else {
-                    vertexesLevel[2] = [value]
-                }
-            } else {
-                
-            }
-        })
-    }
-
-    console.log(vertexesLevel);
 
     let vertexes = {
         1: new Circle(1, 600, 50)
@@ -99,11 +92,22 @@ $(function () {
         let currentY = 50 + (key * 100);
         let parentX = vertexes[key].getX();
         vertexesChilds[key].forEach((value, ind) => {
+            if(vertexesChilds[key].length > 2 && key != 1) {
+                vertexes[key].x -= 100;
+            }
             vertexes[value] = new Circle(value, giveCoordX(parentX, vertexesChilds[key].length, ind), currentY);
             vertexes[value].draw();
         });
     }
 
-    //////////////////////////////////////////////////////////////////////
+    // GRAPH END //
+
+    $('.main__panel-item-range').spinner({
+        min: 0,
+        max: 100,
+        spin: (e, ui) => {
+            $(this).change(changeSpinner());
+        }
+    });
 
 });
