@@ -2,7 +2,19 @@ import json from '../config.json' assert {type: 'json'};
 
 $(function () {
 
+    setTimeout(() => {
+        console.log('hello');
+    }, 10000)
+
     $('.top__right-img').css('background-image', 'url(' + json['photo'] + ')');
+
+    $('.main__panel-item-range').spinner({
+        min: 0,
+        max: 100,
+        stop: function(e, ui) {
+            $(this).change(changeSpinner(e));
+        }
+    });
 
     class Circle {
         constructor(number, x, y) {
@@ -31,18 +43,25 @@ $(function () {
         }
     }
 
-    function changeSpinner() {
-        addSpinner((Object.keys(listItems).length) + 1);
-        listItems[(Object.keys(listItems).length) + 1] = 0;
+    function changeSpinner(e) {
+        let currentValue = $(e.target).spinner('value');
+        if ($(e.currentTarget).attr('class') == 'ui-button ui-widget ui-spinner-button ui-spinner-up ui-corner-tr ui-button-icon-only') {
+            addSpinner((Object.keys(listItems).length) + 1);
+            listItems[$(e.target).attr('id')] = currentValue;
+            listItems[(Object.keys(listItems).length) + 1] = 0;
+        } else {
+            delete listItems[Object.keys(listItems).length];
+            $('.main__panel-item:last').remove();
+        }
     }
 
     function addSpinner(number) {
-        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + number.toString() + ': </p><input class="main__panel-item-range"></div>');
+        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + number.toString() + ': </p><input class="main__panel-item-range" id="' + number.toString() + '"></div>');
         $('.main__panel-item-range').spinner({
             min: 0,
             max: 100,
-            spin: (e, ui) => {
-                $(this).change(changeSpinner());
+            stop: function(e, ui) {
+                $(this).change(changeSpinner(e));
             }
         });
     }
@@ -74,7 +93,7 @@ $(function () {
     graph.height = 650;
     const cGraph = graph.getContext('2d');
 
-    // GRAPH START //
+    // GRAPH DRAW START //
 
     let vertexesChilds = {
         1: [2, 3, 4, 5, 6], // у 2, 3, 4 - 2 (1) уровень
@@ -100,14 +119,6 @@ $(function () {
         });
     }
 
-    // GRAPH END //
-
-    $('.main__panel-item-range').spinner({
-        min: 0,
-        max: 100,
-        spin: (e, ui) => {
-            $(this).change(changeSpinner());
-        }
-    });
+    // GRAPH DRAW END //
 
 });
