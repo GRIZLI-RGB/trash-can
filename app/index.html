@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск наименьшего общего предка двух вершин дерева методом двоичного подъема</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="top">
+        <div class="top__left">
+            <p class="top__left-text">
+                Предполагаем, что вершины перечислены от 1 до n, а 1 - это корень дерева. Введите данные графа ниже, указав для каждой вершины количество её детей и укажите ниже номера двух вершин u и v для поиска их наименьшего общего предка.
+            </p>
+            <div class="top__left-inputs">
+                <div class="top__left-inputs-item">
+                    <p class="top__left-inputs-item-text">Node #u =</p>
+                    <input class="top__left-inputs-item-input" type="text">
+                </div>
+                <div class="top__left-inputs-item">
+                    <p class="top__left-inputs-item-text">Node #v =</p>
+                    <input class="top__left-inputs-item-input" type="text">
+                </div>
+            </div>
+            <div class="top__left-buttons">
+                <div class="top__left-buttons-up">
+                    <button class="top__left-buttons-up-preprocessing">
+                        Animate Preprocessing
+                    </button>
+                    <button class="top__left-buttons-up-lca">
+                        Animate finding LCA
+                    </button>
+                </div>
+                <div class="top__left-buttons-down">
+                    <button class="top__left-buttons-down-defaultGraph">
+                        Отобразить дефолтный граф
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="top__right">
+            <p class="top__right-text">Препроцессинг</p>
+            <div class="top__right-img"></div>
+        </div>
+    </div>
+    <div class="main">
+        <div class="main__logs">
+            <p class="main__logs-text">
+                Сервис успешно запущен!
+            </p>
+        </div>
+        <canvas class="main__graph">
+            
+        </canvas>
+        <div class="main__panel">
+            <div class="main__panel-item">
+                <p class="main__panel-item-text">
+                    Кол-во детей у #1:
+                </p>
+                <input class="main__panel-item-range">
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js" integrity="sha256-xLD7nhI62fcsEZK2/v8LsBcb4lG7dgULkuXoXB/j91c=" crossorigin="anonymous"></script>
+    <script src="js/main.js" type="module"></script>
+</body>
+</html>

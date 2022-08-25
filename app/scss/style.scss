@@ -1,0 +1,94 @@
+@import 'global';
+@import 'variables';
+
+.top {
+    display: flex;
+    &__left {
+        width: 50%;
+        &-text {
+            margin-bottom: 20px;
+        }
+        &-inputs {
+            &-item {
+                &-text {
+                    display: inline;
+                }
+                &-input {
+                    width: 30px;
+                    height: 30px;
+                    text-align: center;
+                }
+                &:last-child {
+                    margin-top: 5px;
+                }
+            }
+        }
+        &-buttons {
+            margin-top: 20px;
+            width: fit-content;
+            &-up {
+                &-preprocessing {
+                    padding: 0 5px;
+                }
+                &-lca {
+                    padding: 0 5px;
+                }
+            }
+            &-down {
+                margin-top: 3px;
+                &-defaultGraph {
+                    width: 100%;
+                }
+            }
+        }
+    }
+    &__right {
+        width: 50%;
+        margin-left: 100px;
+        overflow: hidden;
+        &-text {
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        &-img {
+            width: 100%;
+            min-height: 100%;
+            background-size: contain;
+            background-position: center left;
+            background-repeat: no-repeat;
+        }
+    }
+}
+
+.main {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    &__logs {
+        min-height: 500px;
+        min-width: 290px;
+        border: 1px solid #8a8a8a;
+        padding: 20px;
+        &-text {
+            font-size: 14px;
+        }
+    }
+    &__graph {
+        border: 1px solid #000;
+    }
+    &__panel {
+        padding: 20px;
+        min-width: 290px;
+        min-height: 500px;
+        border: 1px solid #8a8a8a;
+        background-color: $defaultPanelColor;
+        &-item {
+            &-text {
+                display: inline;
+            }
+            &-range {
+                width: 30px;
+            }
+        }
+    }
+}
