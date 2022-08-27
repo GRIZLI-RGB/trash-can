@@ -66,9 +66,11 @@ $(function () {
         }
         draw() {
             cGraph.beginPath();
-            cGraph.moveTo(startX, startY);
-            cGraph.lineTo(endX, endY);
-            cGraph.strokeStyle = ""
+            cGraph.moveTo(this.startX, this.startY);
+            cGraph.lineTo(this.endX, this.endY);
+            cGraph.strokeStyle = "#908371";
+            cGraph.lineWidth = '3';
+            cGraph.stroke();
         }
     }
     
@@ -234,6 +236,18 @@ $(function () {
         // выводим все собранные круги
         for (const key in vertexesCircle) {
             vertexesCircle[key].draw();
+        }
+
+        // добавляем стрелочки
+        for(const key in vertexes) {
+            for (const k in vertexes[key]) {
+                vertexes[key][k].forEach(value => {
+                    let parentX = vertexesCircle[k].x;
+                    let parentY = vertexesCircle[k].y;
+                    new Line(vertexesCircle[value].x, vertexesCircle[value].y - 30, parentX, parentY + 30).draw();
+                    console.log(`Значение ${value} с родителем ${k}`);
+                })
+            }
         }
 
     }
