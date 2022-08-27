@@ -55,8 +55,20 @@ $(function () {
             cGraph.textBaseline = 'middle';
             cGraph.fillText(this.number, this.x, this.y);
         }
-        getX() {
-            return this.x;
+    }
+
+    class Line {
+        constructor(startX, startY, endX, endY) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+        }
+        draw() {
+            cGraph.beginPath();
+            cGraph.moveTo(startX, startY);
+            cGraph.lineTo(endX, endY);
+            cGraph.strokeStyle = ""
         }
     }
     
@@ -107,24 +119,6 @@ $(function () {
         });
     }
 
-    function giveCoordX(parentX, childsNumber, ind) {
-        let arr = []
-        for (let index = 0; index < childsNumber; index++) {
-            arr[index] = 0;
-        }
-        let arrCenter = Math.floor(childsNumber / 2)
-        arr[arrCenter] = parentX;
-        for (let index = 0; index < arr.length; index++) {
-            let arrCenterMinus = arrCenter - index;
-            if(arrCenterMinus > 0) {
-                arr[index] = arr[arrCenter] - (100 * arrCenterMinus)
-            } else {
-                arr[index] = arr[arrCenter] + (100 * Math.abs(arrCenterMinus))
-            }
-        }
-        return arr[ind]
-    }
-
     const graph = $('.main__graph')[0];
     graph.width = 1200;
     graph.height = 650;
@@ -132,30 +126,116 @@ $(function () {
 
     // GRAPH DRAW START //
 
-    let vertexesChilds = {
-        1: [2, 3, 4, 5, 6], // у 2, 3, 4 - 2 (1) уровень
-        2: [7, 8, 9], // у 7,8,9 - 3 (2) уровень
-        3: [10], // у 10 - 3 (2) уровень
-        5: [11, 12, 13] // у 11,12,13 - 3 (2) уровень
-    }
+    // let vertexesChilds = {
+    //     1: [2, 3, 4, 5, 6], // у 2, 3, 4 - 2 (1) уровень
+    //     2: [7, 8, 9], // у 7,8,9 - 3 (2) уровень
+    //     3: [10], // у 10 - 3 (2) уровень
+    //     5: [11, 12, 13] // у 11,12,13 - 3 (2) уровень
+    // }
 
-    let vertexes = {
+    // let vertexes = {
+    //     1: new Circle(1, 600, 50)
+    // }
+
+    // function main() {
+    //     for (const key in vertexesChilds) {
+    //         vertexes[1].draw();
+    //         let currentY = 50 + (key * 100);
+    //         let parentX = vertexes[key].getX();
+    //         vertexesChilds[key].forEach((value, ind) => {
+    //             if(vertexesChilds[key].length > 2 && key != 1) {
+    //                 vertexes[key].x -= 100;
+    //             }
+    //             vertexes[value] = new Circle(value, giveCoordX(parentX, vertexesChilds[key].length, ind), currentY);
+    //             vertexes[value].draw();
+    //         });
+    //     }
+    // }
+
+    let vertexes = {1: {1: [2, 3, 4]},
+                    2: {2: [], 3: [5, 6], 4: []},
+                    3: {5: [], 6: [7, 8, 9, 10]}}
+
+    let vertexesCircle = {
         1: new Circle(1, 600, 50)
     }
 
-    function main() {
-        for (const key in vertexesChilds) {
-            vertexes[1].draw();
-            let currentY = 50 + (key * 100);
-            let parentX = vertexes[key].getX();
-            vertexesChilds[key].forEach((value, ind) => {
-                if(vertexesChilds[key].length > 2 && key != 1) {
-                    vertexes[key].x -= 100;
-                }
-                vertexes[value] = new Circle(value, giveCoordX(parentX, vertexesChilds[key].length, ind), currentY);
-                vertexes[value].draw();
-            });
+    function takeX(parentX, numberChilds, ind) {
+        let coords = [];
+        for (let index = 0; index < numberChilds; index++) {
+            coords.push(0);
         }
+        if (numberChilds % 2 == 0) {
+            // четное количество детей
+            let centerRight = (numberChilds / 2) - 1;
+            let centerLeft = numberChilds / 2;
+            coords[centerRight] = parentX - 50;
+            coords[centerLeft] = parentX + 50;
+            for (let index = 0; index < coords.length; index++) {
+                if (index < centerRight) {
+                    // если слева
+                    let coordsCenterRightMinus = centerRight - index;
+                    coords[index] = coords[centerRight] - (100 * coordsCenterRightMinus);
+                } 
+                if (index > centerLeft) {
+                    // // если справа
+                    let coordsCenterLeftMinus = centerLeft - index;
+                    coords[index] = coords[centerLeft] + (100 * Math.abs(coordsCenterLeftMinus));
+                }
+            }
+        } else {
+            // нечетное количество детей
+            let centerIndex = Math.floor(numberChilds / 2);
+            coords[centerIndex] = parentX;
+            for (let index = 0; index < coords.length; index++) {
+                let coordsCenterMinus = centerIndex - index;
+                if (coordsCenterMinus > 0) {
+                    coords[index] = coords[centerIndex] - (100  * coordsCenterMinus);
+                } else {
+                    coords[index] = coords[centerIndex] + (100  * Math.abs(coordsCenterMinus));
+                }
+            }
+        }
+        return coords[ind];
+    }
+
+    function main() {
+        cGraph.clearRect(0, 0, graph.width, graph.height);
+
+        // собираем список кругов
+        for (const key in vertexes) {
+            let currentLevel = key;
+            let currentParents = [];
+            let currentY = 50 + (currentLevel * 100);
+
+            for (const k in vertexes[key]) {
+                currentParents.push(k);
+            }
+
+            console.log(`\nТекущий уровень: ${currentLevel}\nРодители на этом уровне: ${currentParents}`);
+
+            currentParents.forEach((value) => {
+                vertexes[currentLevel][value].length == 0 ? console.log(`У родителя ${value} детей нет`) : console.log(`У родителя ${value} есть дети ${vertexes[currentLevel][value]}`);
+                let parentX = vertexesCircle[value].x;
+                let numberChilds = vertexes[currentLevel][value].length;
+                if (vertexes[currentLevel][value].length != 0) {
+                    vertexes[currentLevel][value].forEach((val, ind) => {
+                        // val - выдает ребенка (2, 3, 4, 5, 6, 7, 8)
+                        vertexesCircle[val] = new Circle(val, takeX(parentX, numberChilds, ind), currentY);
+                    })
+                }
+            })
+
+            vertexesCircle[1].draw();
+
+            console.log(vertexesCircle);
+        }
+
+        // выводим все собранные круги
+        for (const key in vertexesCircle) {
+            vertexesCircle[key].draw();
+        }
+
     }
 
     main();
