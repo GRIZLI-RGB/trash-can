@@ -62,36 +62,45 @@ $(function () {
         }
     }
     
-    // class activeCircle {
-    //     constructor(number, x, y) {
-    //         this.number = number;
-    //         this.x = x;
-    //         this.y = y;
-    //     }
-    //     draw() {
-    //         cGraph.beginPath();
-    //         cGraph.arc(this.x, this.y, 30, 0, 2 * Math.PI);
-    //         cGraph.strokeStyle = '#8A8A8A';
-    //         cGraph.lineWidth = 3;
-    //         cGraph.stroke();
-    //         cGraph.fillStyle = '#2A88E1';
-    //         cGraph.fill();
+    class activeCircle {
+        constructor(number, x, y) {
+            this.number = number;
+            this.x = x;
+            this.y = y;
+        }
+        draw() {
+            cGraph.beginPath();
+            cGraph.arc(this.x, this.y, 30, 0, 2 * Math.PI);
+            cGraph.strokeStyle = '#8A8A8A';
+            cGraph.lineWidth = 3;
+            cGraph.stroke();
+            cGraph.fillStyle = '#2A88E1';
+            cGraph.fill();
 
-    //         cGraph.beginPath();
-    //         cGraph.font = '24px sans-serif';
-    //         cGraph.fillStyle = '#000';
-    //         cGraph.textAlign = 'center';
-    //         cGraph.textBaseline = 'middle';
-    //         cGraph.fillText(this.number, this.x, this.y);
-    //     }
-    // }
-
-    //         delete listItems[Object.keys(listItems).length];
-    //         $('.main__panel-item:last').remove();
+            cGraph.beginPath();
+            cGraph.font = '24px sans-serif';
+            cGraph.fillStyle = '#000';
+            cGraph.textAlign = 'center';
+            cGraph.textBaseline = 'middle';
+            cGraph.fillText(this.number, this.x, this.y);
+        }
+    }
 
 
 
-    // SPINNER START //
+
+
+    // NODE [START] //
+
+
+
+    // NODE [END] //
+
+
+
+
+
+    // SPINNER [START] //
 
     // здесь храним всех родителей и детей панели справа
     let listItems = {
@@ -108,9 +117,9 @@ $(function () {
     });
 
     // функция добавления спиннера в правую панель
-    function addSpinner(numberSpinner, numberParent) {
+    function addSpinner(numberSpinner, numberParent, numberLevel) {
 
-        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + numberSpinner.toString() + ': </p><input class="main__panel-item-range" id="' + numberSpinner.toString() + '" ' + 'data-parent="' + numberParent.toString() + '"' + '></div>');
+        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + numberSpinner.toString() + ': </p><input class="main__panel-item-range" id="' + numberSpinner.toString() + '" ' + 'data-parent="' + numberParent.toString() + '" ' + 'data-level="' + numberLevel.toString() + '"' + '></div>');
 
         $('.main__panel-item-range').spinner({
                     min: 0,
@@ -123,16 +132,33 @@ $(function () {
     }
 
     function changeSpinner(e) {
+
         let currentValue = $(e.target).spinner('value');
-        let currentId = $(e.target).attr('id');
-        let currentParent = $(e.target).attr('data-parent');
+        let currentId = Number($(e.target).attr('id'));
+        let currentParent = Number($(e.target).attr('data-parent'));
+        let currentLevel = Number($(e.target).attr('data-level'));
+
         // если добавляем
         if ($(e.currentTarget).hasClass('ui-spinner-up')) {
             // добавляем спиннер
-            addSpinner(Object.keys(listItems).length + 1, currentId);
+            addSpinner(Object.keys(listItems).length + 1, currentId,currentLevel + 1);
             // добавляем в listItems кол-во детей спиннера и сам спиннер
             listItems[$(e.target).attr('id')] = currentValue;
             listItems[(Object.keys(listItems).length) + 1] = 0;
+
+            // console.log(`Создан новый ребенок с уровнем ${currentLevel + 1}, имеющий родителя ${currentId} под номером ${(Object.keys(listItems).length)}`);
+
+            if((currentLevel + 1) in vertexes) {
+                if(currentId in vertexes[currentLevel + 1]) {
+                    vertexes[currentLevel + 1][currentId].push(Object.keys(listItems).length);
+                } else {
+                    vertexes[currentLevel + 1][currentId] = [Object.keys(listItems).length];
+                }
+            } else {
+                vertexes[currentLevel + 1] = {[currentId]: [Object.keys(listItems).length]};
+            }
+
+            main();
         } 
         // если убавляем
         else {
@@ -141,27 +167,29 @@ $(function () {
                 delete listItems[Object.keys(listItems).length];
                 listItems[$(e.target).attr('id')] = currentValue;
                 $('.main__panel-item:last').remove();
+
+                // console.log(`Удален ребенок на уровне ${currentLevel + 1}, имеющий родителя ${currentId} под номером ${(Object.keys(listItems).length)}`);
+
+                delete vertexesCircle[(vertexes[currentLevel + 1][currentId].pop())];
+
+                main();
             }
         }
+
     }
 
-    // SPINNER END //
+    // SPINNER [END] //
 
 
+
+
+
+    // GRAPH DRAW [START] //
 
     const graph = $('.main__graph')[0];
     graph.width = 1200;
     graph.height = 650;
     const cGraph = graph.getContext('2d');
-
-
-
-    // GRAPH DRAW START //
-
-    // {1: {1: [2, 3]},
-    //  2: {2: [4], 3: [5, 6]},
-    //  3: {5: [7, 8], 6: [9, 10, 11]}
-    // }
 
     let vertexes = {
         1: {1: []}
@@ -211,7 +239,7 @@ $(function () {
     }
 
     function main() {
-        cGraph.clearRect(0, 0, graph.width, graph.height);
+        cGraph.clearRect(0, 0, 1200, 600);
 
         // собираем список кругов
         for (const key in vertexes) {
@@ -235,8 +263,6 @@ $(function () {
 
             vertexesCircle[1].draw();
         }
-
-        console.log(vertexesCircle);
 
         // решаем проблему с дистанцией (столкновениями)
         // for (const key in vertexesCircle) {
@@ -284,7 +310,9 @@ $(function () {
 
     main();
 
-    // GRAPH DRAW END //
+    // GRAPH DRAW [END] //
+
+
 
 
 
