@@ -21,18 +21,6 @@ $(function () {
         }
     });
 
-    $('.main__panel-item-range').spinner({
-        min: 0,
-        max: 100,
-        stop: function(e, ui) {
-            $(this).change(changeSpinner(e));
-        }
-    });
-
-    let listItems = {
-        1: 0
-    }
-
     class Circle {
         constructor(number, x, y) {
             this.number = number;
@@ -74,89 +62,110 @@ $(function () {
         }
     }
     
-    class activeCircle {
-        constructor(number, x, y) {
-            this.number = number;
-            this.x = x;
-            this.y = y;
-        }
-        draw() {
-            cGraph.beginPath();
-            cGraph.arc(this.x, this.y, 30, 0, 2 * Math.PI);
-            cGraph.strokeStyle = '#8A8A8A';
-            cGraph.lineWidth = 3;
-            cGraph.stroke();
-            cGraph.fillStyle = '#2A88E1';
-            cGraph.fill();
+    // class activeCircle {
+    //     constructor(number, x, y) {
+    //         this.number = number;
+    //         this.x = x;
+    //         this.y = y;
+    //     }
+    //     draw() {
+    //         cGraph.beginPath();
+    //         cGraph.arc(this.x, this.y, 30, 0, 2 * Math.PI);
+    //         cGraph.strokeStyle = '#8A8A8A';
+    //         cGraph.lineWidth = 3;
+    //         cGraph.stroke();
+    //         cGraph.fillStyle = '#2A88E1';
+    //         cGraph.fill();
 
-            cGraph.beginPath();
-            cGraph.font = '24px sans-serif';
-            cGraph.fillStyle = '#000';
-            cGraph.textAlign = 'center';
-            cGraph.textBaseline = 'middle';
-            cGraph.fillText(this.number, this.x, this.y);
+    //         cGraph.beginPath();
+    //         cGraph.font = '24px sans-serif';
+    //         cGraph.fillStyle = '#000';
+    //         cGraph.textAlign = 'center';
+    //         cGraph.textBaseline = 'middle';
+    //         cGraph.fillText(this.number, this.x, this.y);
+    //     }
+    // }
+
+    //         delete listItems[Object.keys(listItems).length];
+    //         $('.main__panel-item:last').remove();
+
+
+
+    // SPINNER START //
+
+    // здесь храним всех родителей и детей панели справа
+    let listItems = {
+        1: 0
+    }
+
+    // по дефолту создаем спиннер #1
+    $('.main__panel-item-range').spinner({
+        min: 0,
+        max: 100,
+        stop: function(e) {
+            $(this).change(changeSpinner(e));
         }
+    });
+
+    // функция добавления спиннера в правую панель
+    function addSpinner(numberSpinner, numberParent) {
+
+        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + numberSpinner.toString() + ': </p><input class="main__panel-item-range" id="' + numberSpinner.toString() + '" ' + 'data-parent="' + numberParent.toString() + '"' + '></div>');
+
+        $('.main__panel-item-range').spinner({
+                    min: 0,
+                    max: 100,
+                    stop: function(e, ui) {
+                        $(this).change(changeSpinner(e));
+                    }
+                });
+
     }
 
     function changeSpinner(e) {
         let currentValue = $(e.target).spinner('value');
-        if ($(e.currentTarget).attr('class') == 'ui-button ui-widget ui-spinner-button ui-spinner-up ui-corner-tr ui-button-icon-only') {
-            addSpinner((Object.keys(listItems).length) + 1);
+        let currentId = $(e.target).attr('id');
+        let currentParent = $(e.target).attr('data-parent');
+        // если добавляем
+        if ($(e.currentTarget).hasClass('ui-spinner-up')) {
+            // добавляем спиннер
+            addSpinner(Object.keys(listItems).length + 1, currentId);
+            // добавляем в listItems кол-во детей спиннера и сам спиннер
             listItems[$(e.target).attr('id')] = currentValue;
             listItems[(Object.keys(listItems).length) + 1] = 0;
-        } else {
-            delete listItems[Object.keys(listItems).length];
-            $('.main__panel-item:last').remove();
+        } 
+        // если убавляем
+        else {
+            // если в элементов больше, чем 1 и у него есть дети
+            if (Object.keys(listItems).length > 1  && listItems[currentId] > 0) {
+                delete listItems[Object.keys(listItems).length];
+                listItems[$(e.target).attr('id')] = currentValue;
+                $('.main__panel-item:last').remove();
+            }
         }
     }
 
-    function addSpinner(number) {
-        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + number.toString() + ': </p><input class="main__panel-item-range" id="' + number.toString() + '"></div>');
-        $('.main__panel-item-range').spinner({
-            min: 0,
-            max: 100,
-            stop: function(e, ui) {
-                $(this).change(changeSpinner(e));
-            }
-        });
-    }
+    // SPINNER END //
+
+
 
     const graph = $('.main__graph')[0];
     graph.width = 1200;
     graph.height = 650;
     const cGraph = graph.getContext('2d');
 
+
+
     // GRAPH DRAW START //
 
-    // let vertexesChilds = {
-    //     1: [2, 3, 4, 5, 6], // у 2, 3, 4 - 2 (1) уровень
-    //     2: [7, 8, 9], // у 7,8,9 - 3 (2) уровень
-    //     3: [10], // у 10 - 3 (2) уровень
-    //     5: [11, 12, 13] // у 11,12,13 - 3 (2) уровень
+    // {1: {1: [2, 3]},
+    //  2: {2: [4], 3: [5, 6]},
+    //  3: {5: [7, 8], 6: [9, 10, 11]}
     // }
 
-    // let vertexes = {
-    //     1: new Circle(1, 600, 50)
-    // }
-
-    // function main() {
-    //     for (const key in vertexesChilds) {
-    //         vertexes[1].draw();
-    //         let currentY = 50 + (key * 100);
-    //         let parentX = vertexes[key].getX();
-    //         vertexesChilds[key].forEach((value, ind) => {
-    //             if(vertexesChilds[key].length > 2 && key != 1) {
-    //                 vertexes[key].x -= 100;
-    //             }
-    //             vertexes[value] = new Circle(value, giveCoordX(parentX, vertexesChilds[key].length, ind), currentY);
-    //             vertexes[value].draw();
-    //         });
-    //     }
-    // }
-
-    let vertexes = {1: {1: [2, 3, 4]},
-                    2: {2: [], 3: [5, 6], 4: []},
-                    3: {5: [], 6: [7, 8, 9, 10]}}
+    let vertexes = {
+        1: {1: []}
+    }
 
     let vertexesCircle = {
         1: new Circle(1, 600, 50)
@@ -214,29 +223,47 @@ $(function () {
                 currentParents.push(k);
             }
 
-            console.log(`\nТекущий уровень: ${currentLevel}\nРодители на этом уровне: ${currentParents}`);
-
             currentParents.forEach((value) => {
-                vertexes[currentLevel][value].length == 0 ? console.log(`У родителя ${value} детей нет`) : console.log(`У родителя ${value} есть дети ${vertexes[currentLevel][value]}`);
                 let parentX = vertexesCircle[value].x;
                 let numberChilds = vertexes[currentLevel][value].length;
                 if (vertexes[currentLevel][value].length != 0) {
                     vertexes[currentLevel][value].forEach((val, ind) => {
-                        // val - выдает ребенка (2, 3, 4, 5, 6, 7, 8)
                         vertexesCircle[val] = new Circle(val, takeX(parentX, numberChilds, ind), currentY);
                     })
                 }
             })
 
             vertexesCircle[1].draw();
-
-            console.log(vertexesCircle);
         }
 
-        // выводим все собранные круги
-        for (const key in vertexesCircle) {
-            vertexesCircle[key].draw();
-        }
+        console.log(vertexesCircle);
+
+        // решаем проблему с дистанцией (столкновениями)
+        // for (const key in vertexesCircle) {
+        //     let circleX = vertexesCircle[Number(key)];
+        //     let circleXNext = vertexesCircle[Number(key)+1];
+        //     if(circleXNext != undefined) {
+        //         let difference = Math.abs(circleXNext.x - circleX.x);
+        //         if(difference < 100) {
+        //             for(const k in vertexes) {
+        //                 let arr = [];
+        //                 for(const i in vertexes[k]) {
+        //                     vertexes[k][i].forEach((value) => {
+        //                         arr.push(value);
+        //                     })
+        //                 }
+        //                 if(arr.includes(circleX.number) && arr.includes(circleXNext.number)) {
+        //                     arr.forEach(element => {
+        //                         if((vertexesCircle[Number(element) + 1]) && Math.abs(vertexesCircle[Number(element + 1)].x - vertexesCircle[Number(element)].x) < 100) {
+        //                             vertexesCircle[element].x -= 50;
+        //                             vertexesCircle[getParent(element)].x -= 50;
+        //                         }
+        //                     });
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         // добавляем стрелочки
         for(const key in vertexes) {
@@ -245,15 +272,26 @@ $(function () {
                     let parentX = vertexesCircle[k].x;
                     let parentY = vertexesCircle[k].y;
                     new Line(vertexesCircle[value].x, vertexesCircle[value].y - 30, parentX, parentY + 30).draw();
-                    console.log(`Значение ${value} с родителем ${k}`);
                 })
             }
         }
 
+        // выводим все собранные круги
+        for (const key in vertexesCircle) {
+            vertexesCircle[key].draw();
+        }
     }
 
     main();
 
     // GRAPH DRAW END //
+
+
+
+    $('.top__left-buttons-down-defaultGraph').click(function (e) {
+        vertexes = json['defaultGraph'];
+        main();
+        e.preventDefault();
+    });
 
 });
