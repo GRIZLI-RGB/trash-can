@@ -2,25 +2,29 @@ import json from '../config.json' assert {type: 'json'};
 
 $(function () {
 
-    setTimeout(() => {
-        $('.main__logs-text').text('Сайт успешно запущен!');
-    }, 3500)
 
+
+
+
+    // SITE [START] //
+
+    /* 
+        Забираем фотку из config.json и устанавливаем её на нужное место
+    */
     $('.top__right-img').css('background-image', 'url(' + json['photo'] + ')');
 
-    $('.top__left-inputs-item-input').on('input', function (e) { 
-        let input = Number($(this).val())
-        if((input > 0) && (input < 13)) {
-            let num = Number(input);
-            let x = vertexes[num].x;
-            let y = vertexes[num].y;
-            vertexes[Number(input)] = new activeCircle(num, x, y);
-            vertexes[Number(input)].draw();
-        } else {
-            main();
-        }
+    /* 
+        Забираем граф из config.json и устанавливаем его на нужное место
+    */
+    $('.top__left-buttons-down-defaultGraph').click(function (e) {
+        vertexes = json['defaultGraph'];
+        main();
+        e.preventDefault();
     });
 
+    /* 
+        Класс для создания обычной вершины
+    */
     class Circle {
         constructor(number, x, y) {
             this.number = number;
@@ -45,23 +49,9 @@ $(function () {
         }
     }
 
-    class Line {
-        constructor(startX, startY, endX, endY) {
-            this.startX = startX;
-            this.startY = startY;
-            this.endX = endX;
-            this.endY = endY;
-        }
-        draw() {
-            cGraph.beginPath();
-            cGraph.moveTo(this.startX, this.startY);
-            cGraph.lineTo(this.endX, this.endY);
-            cGraph.strokeStyle = "#908371";
-            cGraph.lineWidth = '3';
-            cGraph.stroke();
-        }
-    }
-    
+    /* 
+        Класс для создания выбранной вершины
+    */
     class activeCircle {
         constructor(number, x, y) {
             this.number = number;
@@ -69,6 +59,26 @@ $(function () {
             this.y = y;
         }
         draw() {
+            cGraph.beginPath();
+            cGraph.arc(this.x, this.y, 43, 0, 2 * Math.PI);
+            cGraph.fillStyle = '#2A88E1';
+            cGraph.fill();
+
+            cGraph.beginPath();
+            cGraph.arc(this.x, this.y, 40, 0, 2 * Math.PI);
+            cGraph.fillStyle = '#FFF';
+            cGraph.fill();
+
+            cGraph.beginPath();
+            cGraph.arc(this.x, this.y, 37, 0, 2 * Math.PI);
+            cGraph.fillStyle = '#2A88E1';
+            cGraph.fill();
+
+            cGraph.beginPath();
+            cGraph.arc(this.x, this.y, 34, 0, 2 * Math.PI);
+            cGraph.fillStyle = '#FFF';
+            cGraph.fill();
+
             cGraph.beginPath();
             cGraph.arc(this.x, this.y, 30, 0, 2 * Math.PI);
             cGraph.strokeStyle = '#8A8A8A';
@@ -86,13 +96,85 @@ $(function () {
         }
     }
 
+    /* 
+        Класс для создания линии соединения вершин
+    */
+    class Line {
+        constructor(startX, startY, endX, endY) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+        }
+        draw() {
+            cGraph.beginPath();
+            cGraph.moveTo(this.startX, this.startY);
+            cGraph.lineTo(this.endX, this.endY);
+            cGraph.strokeStyle = "#908371";
+            cGraph.lineWidth = '3';
+            cGraph.stroke();
+        }
+    }
+
+    // SITE [END] //
+
 
 
 
 
     // NODE [START] //
 
+    /*
+        Значения нод
+    */
+    let nodeValues = {
+        'u': [],
+        'v': []
+    }
 
+    /*
+        Node U
+    */
+    $('#node-u').on('input', function() {
+        if($(this).val() in vertexesCircle) {
+            let cX = vertexesCircle[$(this).val()].x;
+            let cY = vertexesCircle[$(this).val()].y;
+            vertexesCircle[$(this).val()] = new activeCircle($(this).val(), cX, cY);
+            nodeValues['u'][0] = $(this).val();
+            nodeValues['u'][1] = cX;
+            nodeValues['u'][2] = cY;
+            clearCanvas();
+            drawArrows();
+            drawVertexes();
+        } else {
+            vertexesCircle[nodeValues['u'][0]] = new Circle(nodeValues['u'][0], nodeValues['u'][1], nodeValues['u'][2]);
+            clearCanvas();
+            drawArrows();
+            drawVertexes();
+        }
+    });
+
+    /*
+        Node V
+    */
+    $('#node-v').on('input', function() {
+        if($(this).val() in vertexesCircle) {
+            let cX = vertexesCircle[$(this).val()].x;
+            let cY = vertexesCircle[$(this).val()].y;
+            vertexesCircle[$(this).val()] = new activeCircle($(this).val(), cX, cY);
+            nodeValues['v'][0] = $(this).val();
+            nodeValues['v'][1] = cX;
+            nodeValues['v'][2] = cY;
+            clearCanvas();
+            drawArrows();
+            drawVertexes();
+        } else {
+            vertexesCircle[nodeValues['v'][0]] = new Circle(nodeValues['v'][0], nodeValues['v'][1], nodeValues['v'][2]);
+            clearCanvas();
+            drawArrows();
+            drawVertexes();
+        }
+    });
 
     // NODE [END] //
 
@@ -102,12 +184,16 @@ $(function () {
 
     // SPINNER [START] //
 
-    // здесь храним всех родителей и детей панели справа
+    /*
+        Хранилище всех детей и родителей из панели справа
+    */
     let listItems = {
         1: 0
     }
 
-    // по дефолту создаем спиннер #1
+    /*
+        Создание дефолтного спиннера #1
+    */
     $('.main__panel-item-range').spinner({
         min: 0,
         max: 100,
@@ -116,7 +202,9 @@ $(function () {
         }
     });
 
-    // функция добавления спиннера в правую панель
+    /*
+        Добавление спинера
+    */
     function addSpinner(numberSpinner, numberParent, numberLevel) {
 
         $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + numberSpinner.toString() + ': </p><input class="main__panel-item-range" id="' + numberSpinner.toString() + '" ' + 'data-parent="' + numberParent.toString() + '" ' + 'data-level="' + numberLevel.toString() + '"' + '></div>');
@@ -131,6 +219,9 @@ $(function () {
 
     }
 
+    /*
+        Отслеживание и обработка добавления/убавления детей в правой панели
+    */
     function changeSpinner(e) {
 
         let currentValue = $(e.target).spinner('value');
@@ -186,126 +277,155 @@ $(function () {
 
     // GRAPH DRAW [START] //
 
+    /*
+        Создаем канвас размером 1200 на 650 пикселей в 2D-формате
+    */
     const graph = $('.main__graph')[0];
     graph.width = 1200;
     graph.height = 650;
     const cGraph = graph.getContext('2d');
 
+    /*
+        Иерархия всех вершин
+    */
     let vertexes = {
         1: {1: []}
     }
 
+    /*
+        Все вершины с их параметрами
+    */
     let vertexesCircle = {
         1: new Circle(1, 600, 50)
     }
 
-    function takeX(parentX, numberChilds, ind) {
-        let coords = [];
-        for (let index = 0; index < numberChilds; index++) {
-            coords.push(0);
-        }
-        if (numberChilds % 2 == 0) {
-            // четное количество детей
-            let centerRight = (numberChilds / 2) - 1;
-            let centerLeft = numberChilds / 2;
-            coords[centerRight] = parentX - 50;
-            coords[centerLeft] = parentX + 50;
-            for (let index = 0; index < coords.length; index++) {
-                if (index < centerRight) {
-                    // если слева
-                    let coordsCenterRightMinus = centerRight - index;
-                    coords[index] = coords[centerRight] - (100 * coordsCenterRightMinus);
-                } 
-                if (index > centerLeft) {
-                    // // если справа
-                    let coordsCenterLeftMinus = centerLeft - index;
-                    coords[index] = coords[centerLeft] + (100 * Math.abs(coordsCenterLeftMinus));
-                }
-            }
-        } else {
-            // нечетное количество детей
-            let centerIndex = Math.floor(numberChilds / 2);
-            coords[centerIndex] = parentX;
-            for (let index = 0; index < coords.length; index++) {
-                let coordsCenterMinus = centerIndex - index;
-                if (coordsCenterMinus > 0) {
-                    coords[index] = coords[centerIndex] - (100  * coordsCenterMinus);
-                } else {
-                    coords[index] = coords[centerIndex] + (100  * Math.abs(coordsCenterMinus));
-                }
-            }
-        }
-        return coords[ind];
+    /*
+        Функция полной очистки канваса
+    */
+    function clearCanvas() {
+        cGraph.clearRect(0, 0, graph.width, graph.height);
     }
 
-    function main() {
-        cGraph.clearRect(0, 0, 1200, 600);
-
-        // собираем список кругов
-        for (const key in vertexes) {
-            let currentLevel = key;
-            let currentParents = [];
-            let currentY = 50 + (currentLevel * 100);
-
-            for (const k in vertexes[key]) {
-                currentParents.push(k);
+    /*
+        Функция получения координаты X по номеру родителя
+    */
+    function takeX(parentX, numberChilds, ind) {
+            let coords = [];
+            for (let index = 0; index < numberChilds; index++) {
+                coords.push(0);
             }
+            if (numberChilds % 2 == 0) {
+                // четное количество детей
+                let centerRight = (numberChilds / 2) - 1;
+                let centerLeft = numberChilds / 2;
+                coords[centerRight] = parentX - 50;
+                coords[centerLeft] = parentX + 50;
+                for (let index = 0; index < coords.length; index++) {
+                    if (index < centerRight) {
+                        // если слева
+                        let coordsCenterRightMinus = centerRight - index;
+                        coords[index] = coords[centerRight] - (100 * coordsCenterRightMinus);
+                    } 
+                    if (index > centerLeft) {
+                        // // если справа
+                        let coordsCenterLeftMinus = centerLeft - index;
+                        coords[index] = coords[centerLeft] + (100 * Math.abs(coordsCenterLeftMinus));
+                    }
+                }
+            } else {
+                // нечетное количество детей
+                let centerIndex = Math.floor(numberChilds / 2);
+                coords[centerIndex] = parentX;
+                for (let index = 0; index < coords.length; index++) {
+                    let coordsCenterMinus = centerIndex - index;
+                    if (coordsCenterMinus > 0) {
+                        coords[index] = coords[centerIndex] - (100  * coordsCenterMinus);
+                    } else {
+                        coords[index] = coords[centerIndex] + (100  * Math.abs(coordsCenterMinus));
+                    }
+                }
+            }
+            return coords[ind];
+    }
 
-            currentParents.forEach((value) => {
+    /*
+        Функция получения координаты X по номеру родителя
+    */
+    function takeY(currentLevel) {
+        return (50 + (currentLevel * 100));
+    }
+
+    /*
+        Функция сборки координат вершин
+    */
+    function buildVertexes() {
+        for(const level in vertexes) {
+            let currentLevel = level;
+            let currentParents = [];
+            for(const parent in vertexes[level]) {
+                currentParents.push(parent);
+            }
+            currentParents.forEach(value => {
                 let parentX = vertexesCircle[value].x;
                 let numberChilds = vertexes[currentLevel][value].length;
-                if (vertexes[currentLevel][value].length != 0) {
+                if(numberChilds != 0) {
                     vertexes[currentLevel][value].forEach((val, ind) => {
-                        vertexesCircle[val] = new Circle(val, takeX(parentX, numberChilds, ind), currentY);
+                        vertexesCircle[val] = new Circle(val, takeX(parentX, numberChilds, ind), takeY(currentLevel));
                     })
                 }
             })
-
-            vertexesCircle[1].draw();
         }
+    }
 
-        // решаем проблему с дистанцией (столкновениями)
-        // for (const key in vertexesCircle) {
-        //     let circleX = vertexesCircle[Number(key)];
-        //     let circleXNext = vertexesCircle[Number(key)+1];
-        //     if(circleXNext != undefined) {
-        //         let difference = Math.abs(circleXNext.x - circleX.x);
-        //         if(difference < 100) {
-        //             for(const k in vertexes) {
-        //                 let arr = [];
-        //                 for(const i in vertexes[k]) {
-        //                     vertexes[k][i].forEach((value) => {
-        //                         arr.push(value);
-        //                     })
-        //                 }
-        //                 if(arr.includes(circleX.number) && arr.includes(circleXNext.number)) {
-        //                     arr.forEach(element => {
-        //                         if((vertexesCircle[Number(element) + 1]) && Math.abs(vertexesCircle[Number(element + 1)].x - vertexesCircle[Number(element)].x) < 100) {
-        //                             vertexesCircle[element].x -= 50;
-        //                             vertexesCircle[getParent(element)].x -= 50;
-        //                         }
-        //                     });
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+    /*
+        Функция отрисовки всех вершин из vertexesCircle
+    */
+    function drawVertexes() {
+        for (const numberCircle in vertexesCircle) {
+            vertexesCircle[numberCircle].draw();
+        }
+    }
 
-        // добавляем стрелочки
-        for(const key in vertexes) {
-            for (const k in vertexes[key]) {
-                vertexes[key][k].forEach(value => {
-                    let parentX = vertexesCircle[k].x;
-                    let parentY = vertexesCircle[k].y;
+    /*
+        Функция отрисовки всех стрелочек-соединялок
+    */
+    function drawArrows() {
+        for(const level in vertexes) {
+            for(const parent in vertexes[level]) {
+                vertexes[level][parent].forEach(value => {
+                    let parentX = vertexesCircle[parent].x;
+                    let parentY = vertexesCircle[parent].y;
                     new Line(vertexesCircle[value].x, vertexesCircle[value].y - 30, parentX, parentY + 30).draw();
                 })
             }
         }
+    }
 
-        // выводим все собранные круги
-        for (const key in vertexesCircle) {
-            vertexesCircle[key].draw();
-        }
+    /*
+        Функция отрисовки 1-го кадра
+    */
+    function main() {
+
+        /*
+            Очищаем канвас
+        */
+        clearCanvas();
+
+        /*
+            Собираем объект vertexesCircle на основе vertexes
+        */
+        buildVertexes();
+
+        /*
+            Отрисовываем стрелочки
+        */
+        drawArrows();
+
+        /*
+            Отрисовываем вершины
+        */
+        drawVertexes();
+
     }
 
     main();
@@ -315,11 +435,5 @@ $(function () {
 
 
 
-
-    $('.top__left-buttons-down-defaultGraph').click(function (e) {
-        vertexes = json['defaultGraph'];
-        main();
-        e.preventDefault();
-    });
 
 });
