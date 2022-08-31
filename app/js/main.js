@@ -2,10 +2,6 @@ import json from '../config.json' assert {type: 'json'};
 
 $(function () {
 
-
-
-
-
     // SITE [START] //
 
     /* 
@@ -133,7 +129,7 @@ $(function () {
     }
 
     /*
-        Node U
+        Набор текста в Node U
     */
     $('#node-u').on('input', function() {
         if($(this).val() in vertexesCircle) {
@@ -155,7 +151,7 @@ $(function () {
     });
 
     /*
-        Node V
+        Набор текста в Node V
     */
     $('#node-v').on('input', function() {
         if($(this).val() in vertexesCircle) {
@@ -207,7 +203,7 @@ $(function () {
     */
     function addSpinner(numberSpinner, numberParent, numberLevel) {
 
-        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + numberSpinner.toString() + ': </p><input class="main__panel-item-range" id="' + numberSpinner.toString() + '" ' + 'data-parent="' + numberParent.toString() + '" ' + 'data-level="' + numberLevel.toString() + '"' + '></div>');
+        $('.main__panel').append('<div class="main__panel-item"><p class="main__panel-item-text">Кол-во детей у #' + numberSpinner.toString() + ': </p><input disabled class="main__panel-item-range" id="' + numberSpinner.toString() + '" ' + 'data-parent="' + numberParent.toString() + '" ' + 'data-level="' + numberLevel.toString() + '"' + '></div>');
 
         $('.main__panel-item-range').spinner({
                     min: 0,
@@ -226,18 +222,17 @@ $(function () {
 
         let currentValue = $(e.target).spinner('value');
         let currentId = Number($(e.target).attr('id'));
-        let currentParent = Number($(e.target).attr('data-parent'));
         let currentLevel = Number($(e.target).attr('data-level'));
 
         // если добавляем
         if ($(e.currentTarget).hasClass('ui-spinner-up')) {
+
             // добавляем спиннер
             addSpinner(Object.keys(listItems).length + 1, currentId,currentLevel + 1);
+
             // добавляем в listItems кол-во детей спиннера и сам спиннер
             listItems[$(e.target).attr('id')] = currentValue;
             listItems[(Object.keys(listItems).length) + 1] = 0;
-
-            // console.log(`Создан новый ребенок с уровнем ${currentLevel + 1}, имеющий родителя ${currentId} под номером ${(Object.keys(listItems).length)}`);
 
             if((currentLevel + 1) in vertexes) {
                 if(currentId in vertexes[currentLevel + 1]) {
@@ -266,7 +261,7 @@ $(function () {
                 main();
             }
         }
-
+        moveVertexes();
     }
 
     // SPINNER [END] //
@@ -297,6 +292,45 @@ $(function () {
     */
     let vertexesCircle = {
         1: new Circle(1, 600, 50)
+    }
+
+    // function checkEqualParents(firstElement, secondElement) {
+    //     let firstElementNumber = firstElement.number;
+    //     let secondElementNumber = secondElement.number;
+    //     if(firstElementNumber != secondElementNumber) {
+    //         for (const level in vertexes) {
+    //             let i = 0;
+    //             for (const parent in vertexes[level]) {
+    //                 if(firstElementNumber in vertexes[level][parent]) {
+    //                     i += 1;
+    //                 }
+    //                 if(secondElementNumber in vertexes[level][parent]) {
+    //                     i += 1
+    //                 }
+    //             }
+    //             if(i == 2) {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
+
+    /*
+        Функция, двигающая вершины, чтобы они не сливались
+    */
+    function moveVertexes() {
+        // for(const numberCircleOne in vertexesCircle) {
+        //     for(const numberCircleTwo in vertexesCircle) {
+        //         let firstElement = vertexesCircle[numberCircleOne];
+        //         let secondElement = vertexesCircle[numberCircleTwo];
+        //         let difference = Math.abs(firstElement.x - secondElement.x);
+        //         if(difference < 100 && checkEqualParents(firstElement, secondElement)) {
+        //             console.log('Пизда');
+        //             console.log(vertexes, firstElementNumber, secondElementNumber);
+        //         }
+        //     }
+        // }
     }
 
     /*
@@ -431,9 +465,5 @@ $(function () {
     main();
 
     // GRAPH DRAW [END] //
-
-
-
-
 
 });
