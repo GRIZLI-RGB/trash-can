@@ -1,5 +1,25 @@
-@import 'global';
-@import 'variables';
+$defaultArrowColor: #908371;
+$defaultVertexColor: #B6D1D9;
+$defaultPanelColor: #ECE9E1;
+
+*,
+*::after, 
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    padding: 25px 25px 0 25px;
+}
+
+button {
+    cursor: pointer;
+}
 
 .top {
     display: flex;
