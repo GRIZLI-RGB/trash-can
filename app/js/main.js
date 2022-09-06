@@ -335,6 +335,11 @@ function changeSpinner(e) {
         } else {
             vertexes[currentLevel + 1] = {[currentId]: [Object.keys(listItems).length]};
         }
+        buildVertexes();
+        moveVertexes();
+        clearCanvas();
+        drawArrows();
+        drawVertexes();
     } 
 
     // Обработка убавления
@@ -345,12 +350,19 @@ function changeSpinner(e) {
             $('.main__panel-item:last').remove();
             delete vertexesCircle[(vertexes[currentLevel + 1][currentId].pop())];
         }
+        buildVertexes();
+        moveVertexes();
+        clearCanvas();
+        drawArrows();
+        drawVertexes();
     }
 }
 
 /////////////////////
 //  [END] SPINNER  //
 /////////////////////
+
+
 
 /////////////////////
 //  [START] NODE   //
@@ -359,11 +371,10 @@ function changeSpinner(e) {
 // Хранение значений нод
 let nodeValues = {'u': [], 'v': []};
 
-new Circle(5, 50, 50);
-
 // Node U
 $('#node-u').on('input', function() {
     if($(this).val() in vertexesCircle) {
+        vertexesCircle[nodeValues['u'][0]] = new Circle(nodeValues['u'][0], nodeValues['u'][1], nodeValues['u'][2]);
         let cX = vertexesCircle[$(this).val()].x;
         let cY = vertexesCircle[$(this).val()].y;
         vertexesCircle[$(this).val()] = new Circle($(this).val(), cX, cY, '#000', true);
@@ -384,6 +395,7 @@ $('#node-u').on('input', function() {
 // Node V
 $('#node-v').on('input', function() {
     if($(this).val() in vertexesCircle) {
+        vertexesCircle[nodeValues['v'][0]] = new Circle(nodeValues['v'][0], nodeValues['v'][1], nodeValues['v'][2]);
         let cX = vertexesCircle[$(this).val()].x;
         let cY = vertexesCircle[$(this).val()].y;
         vertexesCircle[$(this).val()] = new Circle($(this).val(), cX, cY, '#000', true);
@@ -405,21 +417,66 @@ $('#node-v').on('input', function() {
 //   [END] NODE    //
 /////////////////////
 
+
+
 /////////////////////////////
 //  [START] PREPROCESSING  //
 /////////////////////////////
+
+// Обработка клика по кнопке запуска препроцессинга
+$('.top__left-buttons-up-preprocessing').click(function () { 
+    
+});
 
 /////////////////////////////
 //   [END] PREPROCESSING   //
 /////////////////////////////
 
+
+
 /////////////////////////////
 //   [START] FINDING LCA   //
 /////////////////////////////
 
+// Обработка клика по кнопке запуска LCA-поиска
+$('.top__left-buttons-up-lca').click(function () { 
+    // 1. Проверяем ноды, подписываем их буквами, выводим логи
+
+    // Подпись нод
+    let numberU = nodeValues['u'][0];
+    let numberV = nodeValues['v'][0];
+
+    cGraph.beginPath();
+    cGraph.font = '40px sans-serif';
+    cGraph.fillStyle = '#000';
+    cGraph.textAlign = 'center';
+    cGraph.textBaseline = 'middle';
+    cGraph.fillText('u', vertexesCircle[numberU].x + 53, vertexesCircle[numberU].y);
+
+    cGraph.beginPath();
+    cGraph.font = '40px sans-serif';
+    cGraph.fillStyle = '#000';
+    cGraph.textAlign = 'center';
+    cGraph.textBaseline = 'middle';
+    cGraph.fillText('v', vertexesCircle[numberV].x + 53, vertexesCircle[numberV].y);
+
+    // Проверка на глубину
+    if(vertexesCircle[numberU].y < vertexesCircle[numberV].y) {
+        // Меняем u и v местами
+        let prom1 = nodeValues['u'];
+        let prom2 = nodeValues['v'];
+        nodeValues['u'] = prom2;
+        nodeValues['v'] = prom1;
+    }
+
+    // 2. Поднимаем на нужную глубину ноды
+    // 3. Ищем общего предка
+});
+
 /////////////////////////////
 //    [END] FINDING LCA    //
 /////////////////////////////
+
 
 
 /* 
